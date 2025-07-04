@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Formulário de Contato</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #007BFF;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 400px;
+      background: #fff;
+      padding: 20px;
+      margin: 50px auto;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    p {
+      text-align: center;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #28a745;
+      color: #fff;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+    #feedback {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #28a745;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Simples, rápido e prático.</h1>
+    <p>Preencha o formulário que em breve entraremos em contato</p>
+
+    <form id="formulario">
+      <label for="nome">Nome</label>
+      <input type="text" id="nome" name="nome" required>
+
+      <label for="telefone">Telefone</label>
+      <input type="tel" id="telefone" name="telefone" required>
+
+      <label for="email">E-mail (opcional)</label>
+      <input type="email" id="email" name="email">
+
+      <label for="estado">Estado</label>
+      <select id="estado" name="estado" required>
+        <option value="">Selecione</option>
+        <option value="SP">São Paulo</option>
+        <option value="RJ">Rio de Janeiro</option>
+        <option value="MG">Minas Gerais</option>
+        <option value="BA">Bahia</option>
+      </select>
+
+      <label for="cidade">Cidade</label>
+      <input type="text" id="cidade" name="cidade" required>
+
+      <label for="placa">Placa</label>
+      <input type="text" id="placa" name="placa" required>
+
+      <button type="submit" id="botaoEnviar">Enviar via WhatsApp</button>
+      <div id="feedback"></div>
+    </form>
+  </div>
+
+  <script>
+    const telefoneInput = document.getElementById('telefone');
+    telefoneInput.addEventListener('input', function(e) {
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length > 11) v = v.slice(0,11);
+      v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+      v = v.replace(/(\d{5})(\d)/, '$1-$2');
+      e.target.value = v;
+    });
+
+    const placaInput = document.getElementById('placa');
+    placaInput.addEventListener('input', function(e) {
+      let v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (v.length <= 7) {
+        e.target.value = v;
+      } else {
+        e.target.value = v.slice(0, 7);
+      }
+    });
+
+    document.getElementById('formulario').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const nome = document.getElementById('nome').value.trim();
+      const telefone = document.getElementById('telefone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const estado = document.getElementById('estado').value;
+      const cidade = document.getElementById('cidade').value.trim();
+      const placa = document.getElementById('placa').value.trim();
+
+      const feedback = document.getElementById('feedback');
+      const botao = document.getElementById('botaoEnviar');
+
+      const telefoneLimpo = telefone.replace(/\D/g, '');
+      if (telefoneLimpo.length < 11) {
+        feedback.style.display = 'block';
+        feedback.style.color = 'red';
+        feedback.textContent = 'Por favor, preencha o telefone corretamente!';
+        return;
+      }
+
+      feedback.style.display = 'block';
+      feedback.style.color = '#555';
+      feedback.textContent = 'Enviando...';
+      botao.disabled = true;
+      botao.style.background = '#6c757d';
+
+      let mensagem = `Olá! Meu nome é ${nome}. Quero saber mais informações.\n\n` +
+                     `Telefone: ${telefone}\n`;
+      if (email) {
+        mensagem += `E-mail: ${email}\n`;
+      }
+      mensagem += `Estado: ${estado}\nCidade: ${cidade}\nPlaca: ${placa}`;
+
+      const numeroWhatsApp = '5531995692560';
+      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensagem)}`;
+
+      if (!confirm("Deseja realmente enviar esta mensagem via WhatsApp?")) {
+        feedback.style.display = 'none';
+        botao.disabled = false;
+        botao.style.background = '#28a745';
+        return;
+      }
+
+      setTimeout(function() {
+        feedback.style.color = '#28a745';
+        feedback.textContent = 'Enviado com sucesso! Abrindo WhatsApp...';
+        botao.disabled = false;
+        botao.style.background = '#28a745';
+        window.open(url, '_blank');
+      }, 1000);
+    });
+  </script>
+
+</body>
+</html>
